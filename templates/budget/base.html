@@ -1,0 +1,22 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html lang="en">
+<head>
+    <title>{% block title %}{% endblock %}</title>
+</head>
+<body>
+<table>
+<tr><td width="100"></td>
+    <td>{% block header %}{% endblock %}</td>
+    <td width="40"></td>
+</tr>
+<tr><td>{% block navbar  %}{% endblock %}</td>
+    <td>{% block content %}{% endblock %}</td>
+    <td></td>
+</tr>
+<tr><td></td>
+    <td>{% block footer %}{% endblock %}</td>
+    <td></td>
+</tr>
+</table>
+</body>
+</html>
