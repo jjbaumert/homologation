@@ -5,51 +5,68 @@ from django.contrib import admin
 
 class HomologationItem(models.Model):
     CERT_TYPES = (
-        ('Anatel','Anatel'),
         ('Audit/Inspection','Audit/Inspection'),
-        ('Automotive','Automotive'),
+        ('Automotive Electrical','Automotive Electrical'),
+        ('Automotive Environmental','Automotive Environmental'),
         ('Carrier','Carrier'),
         ('Carrier - AT&T','Carrier - AT&T'),
         ('Carrier - Sprint','Carrier - Sprint'),
         ('Carrier - Verizon','Carrier - Verizon'),
         ('Carrier - Vodafone','Carrier - Vodafone'),
+        ('Carrier - Other','Carrier - Other'),
         ('CCC','CCC'),
-        ('Country Specific - Anatel','Country Specific - Anatel'),
-        ('Country Specific - C-Tick/A-Tick','Country Specific - C-Tick/A-Tick'),
-        ('Country Specific - Telec','Country Specific - Telec'),
-        ('Emission','Emission'),
-        ('Emission/Immunity','Emission/Immunity'),
-        ('Environmental','Environmental'),
+        ('SRRC','SRRC'),
+        ('Anatel','Anatel'),
+        ('Cofetel','Cofetel'),
+        ('C-Tick/A-Tick','C-Tick/A-Tick'),
+        ('GOST','GOST'),
+        ('ISATEL','ISATEL'),
+        ('Telec','Telec'),
+        ('FCC/CE','FCC/CE'),
+        ('FCC/CE/IC','FCC/CE/IC'),
+        ('FCC/CE Intentional Radiator','FCC/CE Intentional Radiator'),
+        ('Emissions','Emissions'),
         ('Immunity','Immunity'),
         ('Intentional Radiator','Intentional Radiator'),
+        ('Environmental','Environmental'),
         ('PTCRB','PTCRB'),
         ('Safety','Safety'),
         ('Safety C1D2','Safety C1D2'),
-        ('Safety C1D1','Safety C1D1')
+        ('Safety C1D1','Safety C1D1'),
     )
     
     CERT_PRESCAN_TYPES = (
-        ('',''),
-        ('Prescan','Prescan'),
+        ('No','No'),
+        ('Yes','Yes'),
     )
     
     CERT_REGION_TYPES = (
         ('US','US'),
         ('EU','EU'),
+        ('US/EU','US/EU'),
+        ('US/Canada','US/Canada'),
+        ('US/EU/Canada','US/EU/Canada'),
         ('Brazil','Brazil'),
+        ('Canada','Canada'),
+        ('Korea','Korea'),
         ('China','China'),
         ('India','India'),
         ('Japan','Japan'),
+        ('Mexico','Mexico'),
+        ('Russia','Russia'),
+        ('France','France'),
         ('Australia/NZ','Australia/NZ'),
+        ('Worldwide','Worldwide'),
         ('Other','Other'),
     )
     
-    name = models.CharField(max_length=30)
-    description = models.CharField(max_length=120)
+    name = models.CharField(max_length=50)
+    description = models.CharField(max_length=120, blank=True, null=True)
     project_code = models.CharField(max_length=30)
     cert_type = models.CharField(max_length=30, choices=CERT_TYPES)
     cert_prescan = models.CharField(max_length=30, choices=CERT_PRESCAN_TYPES, blank=True)
     region = models.CharField(max_length=30, choices=CERT_REGION_TYPES)
+    module = models.CharField(max_length=30, blank=True)
     supplier = models.CharField(max_length=30)
     first_entered = models.CharField(max_length=30)
     
@@ -58,15 +75,23 @@ class HomologationItem(models.Model):
 
 
 class HomologationStatus(models.Model):
-    CERT_STATUS = (
-        ('New','New'),
-        ('Quoting','Quoting'),
-        ('Waiting','Waiting'),
+        
+    CERT_APPROVAL_STATUS = (
+        ('Requested','Requested'),
         ('Approved','Approved'),
         ('Rejected','Rejected'),
+        ('Cancelled','Cancelled'),
+    )
+
+    CERT_STATUS = (
+        ('Quoting','Quoting'),
+        ('Ready','Ready'),
+        ('Submitting','Submitting'),
         ('In-Progress','In-Progress'),
-        ('Completed','Completed'),
+        ('Passed','Passed'),
+        ('Failing','Failing'),
         ('Failed','Failed'),
+        ('Completed','Completed'),
         ('Canceled','Canceled'),
     )
     
@@ -75,14 +100,16 @@ class HomologationStatus(models.Model):
     updated = models.DateTimeField()
     update_reason = models.CharField(max_length=50, blank=True)
 
-    status = models.CharField(max_length=30, choices=CERT_STATUS)
-
+    approval_status = models.CharField(max_length=30, choices=CERT_APPROVAL_STATUS)
+    certification_status = models.CharField(max_length=30, choices=CERT_STATUS)
+    
     budget_amount = models.IntegerField(blank=True, null=True)
     quoted_amount = models.IntegerField(blank=True, null=True)
     actual_amount = models.IntegerField(blank=True, null=True)
 
     requested_start = models.DateField()
     ready = models.DateField(blank=True, null=True)    
+    approved_for = models.DateField(blank=True, null=True)    
     started = models.DateField(blank=True, null=True)
     completed = models.DateField(blank=True, null=True)
 
