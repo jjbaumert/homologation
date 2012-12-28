@@ -1,0 +1,27 @@
+{% extends "budget/navbase.html" %}
+{% load fyq %}
+{% load currency %}
+
+
+{% block header %}Homologation Item List{% endblock %}
+{% block content %}
+<table>
+	<tr>	<th align="left">Quarter</th>
+		<th align="left">Name</th>
+		<th align="left">Certification</th>
+		<th>Budget</th>
+		<th>Status</th>
+		<th>Budget Amount</th>
+	</tr>
+
+{% for item in object_list %}
+	<tr>	<td>{{ item.status.requested_start|fyq }}</a></td>
+		<td><a href="/budget/{{ item.item.id }}">{{ item.item.name }}</a></td>
+		<td>{{ item.item.cert_type }}</td>
+		<td>{{ item.status.approval_status }}</td>
+		<td>{{ item.status.certification_status }}</td>
+		<td>{{ item.status.budget_amount|currency }}</td>
+	</tr>
+{% endfor %}
+</table>
+{% endblock %}

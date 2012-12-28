@@ -4,18 +4,22 @@
     <title>{% block title %}{% endblock %}</title>
 </head>
 <body>
-<table>
-<tr><td width="100"></td>
-    <td>{% block header %}{% endblock %}</td>
-    <td width="40"></td>
+
+<table border="0" cellspacing="0" cellpadding="0">
+<tr>
+	<td></td>
+	<td colspan="3"><h1>{% block header %}{% endblock %}</h1></td>
 </tr>
-<tr><td>{% block navbar  %}{% endblock %}</td>
-    <td>{% block content %}{% endblock %}</td>
-    <td></td>
+<tr>
+	<td width="50"></td>
+	<td width="700" valign="top">{% block content %}{% endblock %}</td>
+	<td width="30"></td>
+	<td width="30%" valign="top">{% block navbar %}{% endblock %}</td>
+	<td width="50"></td>
 </tr>
-<tr><td></td>
-    <td>{% block footer %}{% endblock %}</td>
-    <td></td>
+<tr>
+	<td></td>
+	<td colspan="3">{% block footer %}{% endblock %}</td>
 </tr>
 </table>
 </body>

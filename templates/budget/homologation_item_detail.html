@@ -1,0 +1,72 @@
+{% extends "budget/navbase.html" %}
+
+{% load fyq %}
+{% load currency %}
+
+{% block header %}{{ item.name }}{% endblock %}
+{% block content %}
+<table>
+	<tr><td>Description</td><td width="30"></td><td>{{ item.description }}</td></tr>
+	<tr><td>Project Code</td><td></td><td>{{ item.project_code }}</td></tr>
+	<tr><td>Certification Type</td><td></td><td>{{ item.cert_type }}</td></tr>
+	<tr><td>Prescan</td><td></td><td>{{ item.cert_prescan }}</td></tr>
+	<tr><td>Region</td><td></td><td>{{ item.region }}</td></tr>
+	<tr><td>Supplier</td><td></td><td>{{ item.supplier }}</td></tr>
+	<tr height="15"></tr>
+	<tr><td>Approval Status</td><td></td><td>{{ item_status.approval_status }}</td></tr>
+	<tr><td>Cert Status</td><td></td><td>{{ item_status.certification_status }}</td></tr>
+	<tr height="15"></tr>
+	<tr><td>Requested Start</td><td></td><td>{{ item_status.requested_start|fyq }}</td></tr>
+	<tr><td>Ready</td><td></td><td>{{ item_status.ready }}</td></tr>
+	<tr><td>Started</td><td></td><td>{{ item_status.started }}</td></tr>
+	<tr><td>Completed</td><td></td><td>{{ item_status.completed }}</td></tr>
+	<tr height="15"></tr>
+	<tr><td>Budget Amount</td><td></td><td>{{ item_status.budget_amount|currency }}</td></tr>
+	<tr><td>Quoted Amount</td><td></td><td>{{ item_status.quoted_amount|currency }}</td></tr>
+	<tr><td>Actual Amount</td><td></td><td>{{ item_status.actual_amount|currency }}</td></tr>
+</table>
+{% endblock %}
+{% block navbar %}
+	<hr>
+	<table><tr height="60" valign="center">
+	<td>	<a href="/budget/list">Homologation List</a></td>
+	<td width="20" align="center"></td>
+	<td align="center" style="border-style: dotted; border-radius: 5px; border-color: LightGray">
+		Quarter<br>
+		&nbsp;&nbsp;&nbsp;
+		<a href="/budget/list/last_quarter">last</a>&nbsp;&nbsp;
+		<a href="/budget/list/this_quarter">current</a>&nbsp;&nbsp;
+		<a href="/budget/list/next_quarter">next</a>
+		&nbsp;&nbsp;&nbsp;
+	</td></tr></table>
+	<hr>
+	<strong>Actions</strong>
+	<hr>
+	<a href="/budget/{{ item.id }}/edit">Edit</a><br>
+	<a href="/budget/{{ item.id }}/edit_amount">Update Amounts</a><br>
+	<hr><br>
+	<hr>
+	<strong>Change Budget Status</strong>
+	<hr>
+	<a href="/budget/{{ item.id }}/approve">Approved</a><br>
+	<a href="/budget/{{ item.id }}/requested">Requested</a><br>
+	<a href="/budget/{{ item.id }}/complete">Completed</a><br>
+	<a href="/budget/{{ item.id }}/cancel">Cancelled</a><br>
+	<hr><br>
+	<hr>
+	<strong>Change Cert Status</strong>
+	<hr>
+	<a href="/budget/{{ item.id }}/quoting">Quoting</a><br>
+	<a href="/budget/{{ item.id }}/ready">Ready</a><br>
+	<a href="/budget/{{ item.id }}/submitting">Submitting</a><br>
+	<a href="/budget/{{ item.id }}/in_progress">In-Progress</a><br>
+	<a href="/budget/{{ item.id }}/completed">Completed</a><br>
+	<a href="/budget/{{ item.id }}/passed">Passed</a><br>
+	<a href="/budget/{{ item.id }}/failing">Failing</a><br>
+	<a href="/budget/{{ item.id }}/failed">Failed</a><br>
+	<a href="/budget/{{ item.id }}/cancelled">Cancelled</a><br>
+	<hr><br>
+	<hr>
+	<a href="/budget/{{ item.id }}/history">History</a><br>
+	<hr>
+{% endblock %}
