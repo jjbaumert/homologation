@@ -80,7 +80,7 @@ class HomologationStatus(models.Model):
         ('Requested','Requested'),
         ('Approved','Approved'),
         ('Rejected','Rejected'),
-        ('Cancelled','Cancelled'),
+        ('Deferred','Deferred'),
     )
 
     CERT_STATUS = (
@@ -96,9 +96,10 @@ class HomologationStatus(models.Model):
     )
     
     homologation_item = models.ForeignKey(HomologationItem)
+    active_record = models.BooleanField()
 
     updated = models.DateTimeField()
-    update_reason = models.CharField(max_length=50, blank=True)
+    update_reason = models.CharField(max_length=300, blank=True)
 
     approval_status = models.CharField(max_length=30, choices=CERT_APPROVAL_STATUS)
     certification_status = models.CharField(max_length=30, choices=CERT_STATUS)
