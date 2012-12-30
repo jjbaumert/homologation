@@ -3,6 +3,12 @@ from django.conf.urls import url, patterns
 from budget import views
 
 urlpatterns = patterns ('',
-    url(r'^([0-9]{1,4})',views.budget_item),
-    url(r'^list$', views.budget_list),
+    url(r'^([0-9]{1,4}$)',views.budget_item),
+    url(r'^list/(last_quarter|this_quarter|next_quarter|)$', views.budget_list),
+
+    url(r'^([0-9]{1,4})/(requested|approved|deferred|rejected)',views.cert_status),
+    url(r'^([0-9]{1,4})/(ready|submitting|in_progress|completed)',views.cert_status),
+    url(r'^([0-9]{1,4})/(quoting|passed|failing|failed|cancelled)',views.cert_status),
+    
+    url(r'^([0-9]{1,4})/history$',views.item_history),
 )
