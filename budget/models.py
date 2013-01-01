@@ -60,19 +60,18 @@ class HomologationItem(models.Model):
         ('Other','Other'),
     )
     
-    name = models.CharField(max_length=50)
-    description = models.CharField(max_length=120, blank=True, null=True)
-    project_code = models.CharField(max_length=30)
-    cert_type = models.CharField(max_length=30, choices=CERT_TYPES)
-    cert_prescan = models.CharField(max_length=30, choices=CERT_PRESCAN_TYPES, blank=True)
-    region = models.CharField(max_length=30, choices=CERT_REGION_TYPES)
-    module = models.CharField(max_length=30, blank=True)
-    supplier = models.CharField(max_length=30)
+    name = models.CharField(max_length=50, verbose_name='name')
+    description = models.CharField(max_length=120, verbose_name='description', blank=True, null=True)
+    project_code = models.CharField(max_length=30, verbose_name='project code')
+    cert_type = models.CharField(max_length=30, verbose_name='certification', choices=CERT_TYPES)
+    cert_prescan = models.CharField(max_length=30, verbose_name='prescan', choices=CERT_PRESCAN_TYPES, blank=True)
+    region = models.CharField(max_length=30, verbose_name='region', choices=CERT_REGION_TYPES)
+    module = models.CharField(max_length=30, verbose_name='module', blank=True)
+    supplier = models.CharField(max_length=30, verbose_name='supplier')
     first_entered = models.CharField(max_length=30)
     
     def __unicode__(self):
         return self.name + "-" + self.description
-
 
 class HomologationStatus(models.Model):
         
