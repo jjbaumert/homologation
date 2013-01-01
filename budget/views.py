@@ -3,86 +3,121 @@ from datetime import datetime, date
 from django.shortcuts import render
 from django.template import Context, loader
 from django.http import HttpResponse, HttpResponseRedirect, Http404
+from django.db.models import Sum
 
-from budget.models import HomologationItem
+from budget.models import HomologationItem, HomologationStatus
 from budget.forms import StatusDateForm
+from budget.tables import HomologationTable
 
+from django_tables2 import RequestConfig
 
+#
+#   find_quarter_start_fyq
+#
 
-def find_quarter(date_value, quarter_offset=0):
-	quarter_month = date_value.month
-	quarter_year = date_value.year
+def find_quarter_start_fyq(fyq_str, fyy_str):
+
+    try:
+        quarter_map = {
+            '1': '10',
+            '2': '1',
+            '3': '4',
+            '4': '7'
+        }
+
+        mon = quarter_map[fyq_str]
+        yr = int(fyy_str)+2000
+
+        if fyq_str =='1':
+            yr = yr - 1
+    except:
+        raise AttributeError
+
+    return datetime(year=int(yr),month=int(mon),day=1)
+
+#
+#   find_quarter_start
+#
+
+def find_quarter_start(date_value, quarter_offset=0):
+    
+    quarter_month = date_value.month
+    quarter_year = date_value.year
 	
-	year_offset = int("%.*f" % (0, quarter_offset/4.0))
-	quarter_offset = quarter_offset + year_offset*4
+    year_offset = int("%.*f" % (0, quarter_offset/4.0))
+    quarter_offset = quarter_offset + year_offset*4
 
-	if quarter_month>=10:
-		quarter_month = 10 
-	elif quarter_month >= 7:
-		quarter_month = 7
-	elif quarter_month >= 4:
+    if quarter_month>=10:
+        quarter_month = 10 
+    elif quarter_month >= 7:
+        quarter_month = 7
+    elif quarter_month >= 4:
 		quarter_month = 4
-	elif quarter_month >= 1:
-		quarter_month = 1
+    elif quarter_month >= 1:
+        quarter_month = 1
 		
-	quarter_month = quarter_month + quarter_offset*3
+    quarter_month = quarter_month + quarter_offset*3
 	
-	if quarter_month>12:
-		quarter_year=quarter_year+1
-		quarter_month=quarter_month-12
-	elif quarter_month<1:
-		quarter_year=quarter_year-1
-		quarter_month=quarter_month+12
+    if quarter_month>12:
+        quarter_year=quarter_year+1
+        quarter_month=quarter_month-12
+    elif quarter_month<1:
+        quarter_year=quarter_year-1
+        quarter_month=quarter_month+12
 	
-	return datetime(year=quarter_year+year_offset,month=quarter_month,day=1)
+    return datetime(year=quarter_year+year_offset,month=quarter_month,day=1)
 	
 
+#
+#   homologation_item_list
+#
 
+def homologation_item_list(request, list_filter='', yr='', qtr=''):
 
-def budget_list(request, list_filter):
-    object_list = []
-	
     today = date.today()
-    title = ''
-	
-    if list_filter!='':
-		if list_filter=='last_quarter':
-			title = 'Last Quarter'
-			start_date = find_quarter(today,-1)
-			end_date = find_quarter(today,0)
-		elif list_filter=='this_quarter':
-			title = 'Current Quarter'
-			start_date = find_quarter(today)
-			end_date = find_quarter(today,1)
-		elif list_filter=='next_quarter':
-			title = 'Next Quarter'
-			start_date = find_quarter(today,1)
-			end_date = find_quarter(today,2)
-			
-		data_set = HomologationItem.objects.filter(
-            homologationstatus__active_record=True,
-            homologationstatus__requested_start__gte=str(start_date.date()),
-			homologationstatus__requested_start__lt=str(end_date.date())).order_by(
-                '-homologationstatus__requested_start',
-                '-homologationstatus__budget_amount')
-    else:
-		data_set = HomologationItem.objects.filter(
-            homologationstatus__active_record=True,
-            homologationstatus__requested_start__gte='2011-10-01').order_by(
-                '-homologationstatus__requested_start',
-                '-homologationstatus__budget_amount')
-	
-    for item in data_set:
-		object_list.append(
-            {'item' : item,
-			 'status' : item.homologationstatus_set.order_by("-updated")[0],
-             'title' : title})
-		
-    t = loader.get_template('budget/homologation_item_list.html')	
-    c = Context({'object_list' : object_list })
-	
-    return HttpResponse(t.render(c))
+    title='Homologation Items'
 
+    if list_filter!='':
+        if list_filter=='Q':
+            title = "Q%sFY%s" % (qtr,yr)
+            start_date = find_quarter_start_fyq(yr,qtr)
+            end_date = find_quarter_start(start_date,1)
+        elif list_filter=='last_quarter':
+            title = 'Last Quarter'
+            start_date = find_quarter_start(today,-1)
+            end_date = find_quarter_start(today,0)
+        elif list_filter=='this_quarter':
+            title = 'Current Quarter'
+            start_date = find_quarter_start(today)
+            end_date = find_quarter_start(today,1)
+        elif list_filter=='next_quarter':
+            title = 'Next Quarter'
+            start_date = find_quarter_start(today,1)
+            end_date = find_quarter_start(today,2)
+			
+        data_set = HomologationStatus.objects.filter(
+            active_record=True,
+            requested_start__gte=str(start_date.date()),
+            requested_start__lt=str(end_date.date()))
+    else:
+		data_set = HomologationStatus.objects.filter(
+            active_record=True,
+            requested_start__gte='2011-10-01')
+
+    table = HomologationTable(data_set)
+
+    totals = data_set.values('approval_status').annotate(budget_count=Sum('budget_amount'))
+
+    RequestConfig(request).configure(table)
+
+    return render(request, "budget/homologation_item_list.html", 
+        { 'table': table,
+          'title': title,
+          'totals': totals })
+
+#
+#   budget_item
+#
 
 def budget_item(request, item_id):
 	
@@ -98,51 +133,22 @@ def budget_item(request, item_id):
 	return HttpResponse(t.render(c))
 
 #
-#   budget_status
-#   dead --- delete
+#   cert_status_map
 #
-
-def budget_status(request, item_id, action):
-    status_map = {
-        'requested' : 'Requested',
-        'approved'  : 'Approved',
-        'rejected'  : 'Rejected',
-        'deferred'  : 'Deferred'
-    }
-
-    if not status_map.__contains__(action):
-        raise Http404
-
-    status_string = status_map[action]
-
-    item = HomologationItem.objects.get(pk=item_id)
-    item_status = item.homologationstatus_set.order_by("-updated")[0]
-
-    if not item_status.approval_status == status_string:
-        item_status.id = None
-        item_status.updated = datetime.now()
-        item_status.update_reason = "Moved approval status to: %s from: %s" % \
-            (status_string,item_status.approval_status)
-        item_status.approval_status = status_string
-        item_status.save()
-
-    return HttpResponseRedirect("/budget/%s" % item_id)
-
-
 
 cert_status_map = {
     # action           Name            cert/budget      date form   required 
     'quoting'      : [ 'Quoting',      'certification', False,      None ],     
-    'ready'        : [ 'Ready',        'certification', True,       'ready'  ],
+    'ready'        : [ 'Ready',        'certification', True,       'ready' ],
     'submitting'   : [ 'Submitting',   'certification', False,      None],
-    'in_progress'  : [ 'In-Progress',  'certification', True,       'started'  ],
-    'completed'    : [ 'Completed',    'certification', True,       'comleted'  ],
+    'in_progress'  : [ 'In-Progress',  'certification', True,       'started' ],
+    'completed'    : [ 'Completed',    'certification', True,       'comleted' ],
     'passed'       : [ 'Passed',       'certification', False,      None ],
     'failing'      : [ 'Failing',      'certification', False,      None ],
     'failed'       : [ 'Failed',       'certification', False,      None ],
     'cancelled'    : [ 'Cancelled',    'certification', False,      None ],
-    'requested'    : [ 'Requested',    'budget',        True,       'requested_start'  ],
-    'approved'     : [ 'Approved',     'budget',        True,       'approved_for'  ],
+    'requested'    : [ 'Requested',    'budget',        True,       'requested_start' ],
+    'approved'     : [ 'Approved',     'budget',        True,       'approved_for' ],
     'rejected'     : [ 'Rejected',     'budget',        False,      None ],
     'deferred'     : [ 'Deferred',     'budget',        False,      None ],
     'update_dates' : [ 'Dates',        'date',          True,       None ],
@@ -155,8 +161,6 @@ cert_status_map = {
 
 def update_status(item_status, item_id, action, form=None):
     (status_string,cert_budget_or_date,_,_) = cert_status_map[action]
-
-    print item_status, item_id, action, form
 
     #
     # Mark the old status as invalid
@@ -324,16 +328,16 @@ def cert_status(request, item_id, action):
 
 
 def item_history(request, item_id):
-	try:
-		item = HomologationItem.objects.get(pk=item_id)
-		item_statuses = item.homologationstatus_set.order_by("-updated")
-	except:
-		raise Http404
+    try:
+        item = HomologationItem.objects.get(pk=item_id)
+        item_statuses = item.homologationstatus_set.order_by("-updated")
+    except:
+        raise Http404
 	
-	t = loader.get_template('budget/homologation_item_history.html')
-	c = Context({'item' : item, 'item_statuses' : item_statuses })
+    t = loader.get_template('budget/homologation_item_history.html')
+    c = Context({'item' : item, 'item_statuses' : item_statuses })
 	
-	return HttpResponse(t.render(c))
+    return HttpResponse(t.render(c))
 
 
 
