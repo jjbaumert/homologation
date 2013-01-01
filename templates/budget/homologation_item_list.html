@@ -1,29 +1,17 @@
 {% extends "budget/navbase.html" %}
-{% load fyq %}
+{% load render_table from django_tables2 %}
 {% load currency %}
 
-
 {% block header %}Homologation Item List{% endblock %}
+{% block stylesheet %}<link rel="stylesheet" href="{{ STATIC_URL }}django_tables2/themes/paleblue/css/screen.css" />{% endblock %}
 {% block content %}
-<table>
-	<tr><th align="left">Quarter</th>
-		<th align="left">Name</th>
-		<th align="left">Certification</th>
-		<th>Status</th>
-		<th>Approval</th>
-		<th>Date</th>
-		<th>Budget</th>
-	</tr>
 
-{% for item in object_list %}
-	<tr><td>{{ item.status.requested_start|fyq }}</a></td>
-		<td><a href="/budget/{{ item.item.id }}">{{ item.item.name }}</a></td>
-		<td>{{ item.item.cert_type }}</td>
-		<td>{{ item.status.certification_status }}</td>
-		<td>{{ item.status.approval_status }}</td>
-		<td>{{ item.status.approved_for|fyq }}</td>
-		<td>{{ item.status.budget_amount|currency }}</td>
-	</tr>
+<table {{ header_class|safe }}>
+{% for status in totals %}
+    <tr><td>{{ status.approval_status }}</td><td width="30"></td><td align="right">{{ status.budget_count|currency }}</td></tr>
 {% endfor %}
-</table>
+</table><br>
+
+{% render_table table %}
+
 {% endblock %}
