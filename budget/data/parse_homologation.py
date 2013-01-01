@@ -8,7 +8,6 @@ setup_environ(settings)
 import csv
 import re
 import datetime
-import math
 
 now = datetime.datetime.now()
 
@@ -315,6 +314,7 @@ Invoice']
     p.project_code = item['Project Code']
     p.cert_type = item['Cert Type']
     p.region = item['Region']
+    p.module = item['Cellular Module']
     p.supplier = item['Supplier']
 
     s.active_record = True
@@ -331,6 +331,9 @@ Invoice']
         s.actual_amount = int(float(item['Paid']))
     
     s.requested_start = item['BQ']
+
+    if s.approval_status=='Approved' or s.approval_status=='Complete':
+        s.approved_for = item['BQ']
     s.updated = now
     s.update_reason = 'Initial Creation'
     
