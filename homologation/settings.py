@@ -1,5 +1,13 @@
 # Django settings for homologation project.
 
+
+#
+# --- required for django-tables2
+#
+
+from django.conf.global_settings import TEMPLATE_CONTEXT_PROCESSORS
+TEMPLATE_CONTEXT_PROCESSORS += ('django.core.context_processors.request',)
+
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
@@ -130,6 +138,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     'django.contrib.admindocs',
+    'django_tables2',
     'budget',
 )
 
