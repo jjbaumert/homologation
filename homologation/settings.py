@@ -1,5 +1,10 @@
 # Django settings for homologation project.
 
+#
+# make it easy to switch environments
+#
+import os
+DEVELOPMENT_ENVIRONMENT=os.name
 
 #
 # --- required for django-tables2
@@ -17,27 +22,29 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-#DATABASES = {
-#    'default': {
-#        'ENGINE': 'sqlserver_ado', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-#        'NAME': 'Hardware',                      # Or path to database file if using sqlite3.
-#        'USER': '',                      # Not used with sqlite3.
-#        'PASSWORD': '',                  # Not used with sqlite3.
-#        'HOST': '.\SQLExpress',                      # Set to empty string for localhost. Not used with sqlite3.
-#        'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
-#    }
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'homologation',                      # Or path to database file if using sqlite3.
-        'USER': 'django2',                      # Not used with sqlite3.
-        'PASSWORD': '!django!',                  # Not used with sqlite3.
-        'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
+if DEVELOPMENT_ENVIRONMENT=="nt":
+    DATABASES = {
+        'default': {
+            'ENGINE': 'sqlserver_ado',       # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+            'NAME': 'Homologation',          # Or path to database file if using sqlite3.
+            'USER': '',                      # Not used with sqlite3.
+            'PASSWORD': '',                  # Not used with sqlite3.
+            'HOST': '.\SQLExpress',          # Set to empty string for localhost. Not used with sqlite3.
+            'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
+        }
     }
-}
-             
+else: # linux...
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+            'NAME': 'homologation',               # Or path to database file if using sqlite3.
+            'USER': 'django2',                    # Not used with sqlite3.
+            'PASSWORD': '!django!',               # Not used with sqlite3.
+            'HOST': '',                           # Set to empty string for localhost. Not used with sqlite3.
+            'PORT': '',                           # Set to empty string for default. Not used with sqlite3.
+        }
+    }
+
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
@@ -120,13 +127,21 @@ ROOT_URLCONF = 'homologation.urls'
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'homologation.wsgi.application'
 
-TEMPLATE_DIRS = (
-    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
-    '/home/kender/project/homologation/templates',
-)
-
+if DEVELOPMENT_ENVIRONMENT=="WINDOWS":
+    TEMPLATE_DIRS = (
+        # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
+        # Always use forward slashes, even on Windows.
+        # Don't forget to use absolute paths, not relative paths.
+        'C:/Users/jbaumert/Documents/VirtualEnv/django/homologation/templates',
+    )
+else:
+    TEMPLATE_DIRS = (
+        # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
+        # Always use forward slashes, even on Windows.
+        # Don't forget to use absolute paths, not relative paths.
+        '/home/kender/project/homologation/templates',
+    )
+    
 INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
