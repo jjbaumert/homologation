@@ -5,6 +5,7 @@ from homologation import settings
 
 setup_environ(settings)
 
+import os
 import csv
 import re
 import datetime
@@ -15,7 +16,12 @@ from budget.models import HomologationItem, HomologationStatus
 
 re_fyq=re.compile("FY([0-9]{2})-Q([0-9])")
 
-data = csv.reader(open('/home/kender/project/homologation/budget/data/Homologation.csv'))
+if os.name == 'nt':
+    csv_file = r'C:\Users\jbaumert\Documents\VirtualEnv\django\homologation\budget\data\Homologation.csv'
+else:
+    csv_file = '/home/kender/project/homologation/budget/data/Homologation.csv'
+
+data = csv.reader(open(csv_file))
 
 fields = data.next()
 
