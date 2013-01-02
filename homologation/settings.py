@@ -127,7 +127,7 @@ ROOT_URLCONF = 'homologation.urls'
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'homologation.wsgi.application'
 
-if DEVELOPMENT_ENVIRONMENT=="WINDOWS":
+if DEVELOPMENT_ENVIRONMENT=="nt":
     TEMPLATE_DIRS = (
         # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
         # Always use forward slashes, even on Windows.
