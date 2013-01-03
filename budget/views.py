@@ -106,14 +106,18 @@ def homologation_item_list(request, list_filter='', yr='', qtr=''):
 
     table = HomologationTable(data_set)
 
-    totals = data_set.values('approval_status').annotate(budget_count=Sum('budget_amount'))
+    approval_totals = data_set.values('approval_status').annotate(budget_sum=Sum('budget_amount')).order_by('-budget_sum')
+    status_totals = data_set.values('certification_status').annotate(budget_sum=Sum('budget_amount')).order_by('-budget_sum')
+    type_totals = data_set.values('homologation_item__cert_type').annotate(budget_sum=Sum('budget_amount')).order_by('-budget_sum')
 
     RequestConfig(request).configure(table)
 
     return render(request, "budget/homologation_item_list.html", 
         { 'table': table,
           'title': title,
-          'totals': totals })
+          'approval_totals': approval_totals,
+          'status_totals': status_totals,
+          'type_totals': type_totals})
 
 #
 #   budget_item
