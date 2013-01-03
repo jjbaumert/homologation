@@ -6,6 +6,11 @@
 import os
 DEVELOPMENT_ENVIRONMENT=os.name
 
+if DEVELOPMENT_ENVIRONMENT=='nt':
+    DEVELOPMENT_DIRECTORY = 'C:/Users/jbaumert/Documents/VirtualEnv/django'
+else:
+    DEVELOPMENT_DIRECTORY = '/home/kender/project/homologation'
+
 #
 # --- required for django-tables2
 #
@@ -127,20 +132,12 @@ ROOT_URLCONF = 'homologation.urls'
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'homologation.wsgi.application'
 
-if DEVELOPMENT_ENVIRONMENT=="nt":
-    TEMPLATE_DIRS = (
-        # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
-        # Always use forward slashes, even on Windows.
-        # Don't forget to use absolute paths, not relative paths.
-        'C:/Users/jbaumert/Documents/VirtualEnv/django/homologation/templates',
-    )
-else:
-    TEMPLATE_DIRS = (
-        # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
-        # Always use forward slashes, even on Windows.
-        # Don't forget to use absolute paths, not relative paths.
-        '/home/kender/project/homologation/templates',
-    )
+TEMPLATE_DIRS = (
+    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
+    # Always use forward slashes, even on Windows.
+    # Don't forget to use absolute paths, not relative paths.
+    DEVELOPMENT_DIRECTORY + '/templates',
+)
     
 INSTALLED_APPS = (
     'django.contrib.auth',
