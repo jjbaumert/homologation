@@ -2,15 +2,42 @@
 {% load render_table from django_tables2 %}
 {% load currency %}
 
-{% block header %}Homologation Item List{% endblock %}
+{% block header %}{{ title }}{% endblock %}
 {% block stylesheet %}<link rel="stylesheet" href="{{ STATIC_URL }}django_tables2/themes/paleblue/css/screen.css" />{% endblock %}
-{% block content %}
 
+
+{% block navbar %}
 <table {{ header_class|safe }}>
-{% for status in totals %}
-    <tr><td>{{ status.approval_status }}</td><td width="30"></td><td align="right">{{ status.budget_count|currency }}</td></tr>
+    <tr><td colspan="3"><hr></td></tr>
+    {% include 'budget/list_bar.html' %}
+    <tr><td colspan="3"><hr></td></tr>
+
+    <tr><td><strong>Budget Status</strong></td></tr>
+    <tr><td colspan="3"><hr></td></tr>
+{% for status in approval_totals %}
+    <tr><td>{{ status.approval_status }}</td><td width="30"></td><td align="right">{{ status.budget_sum|currency }}</td></tr>
 {% endfor %}
-</table><br>
+
+    <tr height="15"></tr>
+    <tr><td colspan="3"><hr></td></tr>
+    <tr><td><strong>Certification Status</strong></td></tr>
+    <tr><td colspan="3"><hr></td></tr>
+{% for status in status_totals %}
+    <tr><td>{{ status.certification_status }}</td><td width="30"></td><td align="right">{{ status.budget_sum|currency }}</td></tr>
+{% endfor %}
+
+    <tr height="15"></tr>
+    <tr><td colspan="3"><hr></td></tr>
+    <tr><td><strong>Certification Type</strong></td></tr>
+    <tr><td colspan="3"><hr></td></tr>
+{% for status in type_totals %}
+    <tr><td>{{ status.homologation_item__cert_type }}</td><td width="30"></td><td align="right">{{ status.budget_sum|currency }}</td></tr>
+{% endfor %}
+</table>
+{% endblock %}
+
+
+{% block content %}
 
 {% render_table table %}
 
