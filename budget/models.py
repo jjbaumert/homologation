@@ -85,10 +85,8 @@ class HomologationStatus(models.Model):
     CERT_STATUS = (
         ('Quoting','Quoting'),
         ('Ready','Ready'),
-        ('Submitting','Submitting'),
         ('In-Progress','In-Progress'),
         ('Passed','Passed'),
-        ('Failing','Failing'),
         ('Failed','Failed'),
         ('Completed','Completed'),
         ('Canceled','Canceled'),
