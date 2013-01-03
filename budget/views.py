@@ -9,6 +9,8 @@ from budget.models import HomologationItem, HomologationStatus
 from budget.forms import StatusDateForm
 from budget.tables import HomologationTable
 
+from budget.templatetags.fyq import fyq
+
 from django_tables2 import RequestConfig
 
 #
@@ -66,21 +68,23 @@ def find_quarter_start(date_value, quarter_offset=0):
         quarter_month=quarter_month+12
 	
     return datetime(year=quarter_year+year_offset,month=quarter_month,day=1)
-	
 
 #
 #   homologation_item_list
 #
 
-def homologation_item_list(request, list_filter='', yr='', qtr=''):
+def homologation_item_list(request, list_filter='', qtr='', yr=''):
 
     today = date.today()
     title='Homologation Items'
+    
+    prev_quarter = None
+    next_quarter = None
 
     if list_filter!='':
         if list_filter=='Q':
             title = "Q%sFY%s" % (qtr,yr)
-            start_date = find_quarter_start_fyq(yr,qtr)
+            start_date = find_quarter_start_fyq(qtr,yr)
             end_date = find_quarter_start(start_date,1)
         elif list_filter=='last_quarter':
             title = 'Last Quarter'
@@ -94,6 +98,11 @@ def homologation_item_list(request, list_filter='', yr='', qtr=''):
             title = 'Next Quarter'
             start_date = find_quarter_start(today,1)
             end_date = find_quarter_start(today,2)
+            
+        if start_date >= datetime(year=2011, month=10, day=1): #jjb fixme... get rid of magic number
+            prev_quarter = fyq(find_quarter_start(start_date,-1))
+
+        next_quarter = fyq(end_date)
 			
         data_set = HomologationStatus.objects.filter(
             active_record=True,
@@ -117,7 +126,9 @@ def homologation_item_list(request, list_filter='', yr='', qtr=''):
           'title': title,
           'approval_totals': approval_totals,
           'status_totals': status_totals,
-          'type_totals': type_totals})
+          'type_totals': type_totals,
+          'prev_quarter': prev_quarter,
+          'next_quarter': next_quarter})
 
 #
 #   budget_item
