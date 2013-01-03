@@ -7,7 +7,7 @@ import os
 DEVELOPMENT_ENVIRONMENT=os.name
 
 if DEVELOPMENT_ENVIRONMENT=='nt':
-    DEVELOPMENT_DIRECTORY = 'C:/Users/jbaumert/Documents/VirtualEnv/django'
+    DEVELOPMENT_DIRECTORY = 'C:/Users/jbaumert/Documents/VirtualEnv/django/homologation'
 else:
     DEVELOPMENT_DIRECTORY = '/home/kender/project/homologation'
 
