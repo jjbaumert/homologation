@@ -8,8 +8,11 @@
 	<a href="{{ prev_quarter }}">{{ prev_quarter }}</a>&nbsp;&nbsp;
     {% endif %}
     {% if next_quarter %}
-    	<a href="{{ next_quarter }}">{{ next_quarter }}</a>
+    	<a href="{{ next_quarter }}">{{ next_quarter }}</a>&nbsp;&nbsp;
     {% endif %}
+    
+    (<a href="/budget/new">Add New</a>)
+
 </td></tr></table>
 {% endblock %}
 {% block stylesheet %}<link rel="stylesheet" href="{{ STATIC_URL }}django_tables2/themes/paleblue/css/screen.css" />{% endblock %}
@@ -19,7 +22,6 @@
 <table {{ header_class|safe }}>
     <tr><td colspan="3"><hr></td></tr>
     {% include 'budget/list_bar.html' %}
-    <tr><td colspan="3"><hr></td></tr>
 
     <tr><td><strong>Budget Status</strong></td></tr>
     <tr><td colspan="3"><hr></td></tr>
