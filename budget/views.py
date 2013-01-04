@@ -115,9 +115,19 @@ def homologation_item_list(request, list_filter='', qtr='', yr=''):
 
     table = HomologationTable(data_set)
 
-    approval_totals = data_set.values('approval_status').annotate(budget_sum=Sum('budget_amount')).order_by('-budget_sum')
-    status_totals = data_set.values('certification_status').annotate(budget_sum=Sum('budget_amount')).order_by('-budget_sum')
-    type_totals = data_set.values('homologation_item__cert_type').annotate(budget_sum=Sum('budget_amount')).order_by('-budget_sum')
+    approval_totals = data_set.values('approval_status'). \
+        annotate(budget_sum=Sum('budget_amount')). \
+        order_by('-budget_sum')
+
+    status_totals = data_set.values('certification_status'). \
+        exclude(approval_status='cancelled'). \
+        annotate(budget_sum=Sum('budget_amount')). \
+        order_by('-budget_sum')
+
+    type_totals = data_set.values('homologation_item__cert_type'). \
+        exclude(approval_status='cancelled'). \
+        annotate(budget_sum=Sum('budget_amount')). \
+        order_by('-budget_sum')
 
     RequestConfig(request).configure(table)
 
