@@ -1,0 +1,45 @@
+{% extends "budget/navbase.html" %}
+
+{% load fyq %}
+{% load datef %}
+
+{% block header %}{{ item.name }}{% endblock %}
+{% block content %}
+
+<form action="/budget/{{ item.id }}/edit_amount" method="post">{% csrf_token %}
+
+<table>
+	<tr height="15"></tr><td colspan="3"><hr></td></tr>
+	<tr></tr><td colspan="3">{{ form.non_field_errors }}</td></tr>
+
+	<tr><td>Description</td><td width="30"></td><td>{{ item.description }}</td></tr>
+	<tr><td>Project Code</td><td></td><td>{{ item.project_code }}</td></tr>
+	<tr><td>Certification Type</td><td></td><td>{{ item.cert_type }}</td></tr>
+	<tr height="15"></tr><td colspan="3"><hr></td></tr>
+	
+    <tr></tr><td colspan="3">{{ form.budget_amount.errors }}</td></tr>
+    <tr><td>Budgeted Amount</td>
+        <td></td>
+        <td>{{ form.budget_amount }}</td>
+    </tr>
+    
+    <tr></tr><td colspan="3">{{ form.quoted_amount.errors }}</td></tr>
+    <tr><td>Quoted Amount</td>
+        <td></td>
+        <td>{{ form.quoted_amount }}</td>
+    </tr>
+    
+    <tr></tr><td colspan="3">{{ form.actual_amount.errors }}</td></tr>
+    <tr><td>Actual Amount</td>
+        <td></td>
+        <td>{{ form.actual_amount }}</td>
+    </tr>
+    
+    <tr><td></td><td></td><td><input type="submit" value="Update"/></td></tr>
+
+	<tr height="15"></tr><td colspan="3"><hr></td></tr>
+</table>
+</form>
+{% endblock %}
+{% block navbar %}
+{% endblock %}
