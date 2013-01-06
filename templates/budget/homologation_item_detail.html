@@ -4,7 +4,17 @@
 {% load datef %}
 {% load currency %}
 
-{% block header %}{{ item.name }}{% endblock %}
+{% block header %}
+<table width="100%">
+<tr>
+    <td align="center" width="500"><h1>{{ item.name }}</h1></td>
+    <td align="right">
+        (<a href="/budget/{{ item.id }}/edit">Edit</a>)
+    </td>
+</tr>
+</table>
+
+{% endblock %}
 {% block content %}
 <table>
 	<tr><td>Description</td><td width="30"></td><td>{{ item.description }}</td></tr>
