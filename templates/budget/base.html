@@ -3,14 +3,15 @@
 <head>
     <title>{% block title %}{% endblock %}</title>
     {% block stylesheet %}{% endblock %}
-    <link rel="stylesheet" href="{{ STATIC_URL }}budget.css" />
+    <link rel="stylesheet" href="/static/django_tables2/themes/paleblue/css/screen.css" />
+    <link rel="stylesheet" href="/static/budget.css" />
 </head>
 <body>
 
 <table border="0" cellspacing="0" cellpadding="0">
 <tr>
 	<td></td>
-	<td><h1>{% block header %}{% endblock %}</h1></td>
+	<td>{% block header %}{% endblock %}</td>
 </tr>
 <tr>
 	<td width="50"></td>
