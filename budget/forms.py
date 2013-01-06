@@ -7,3 +7,7 @@ class StatusDateForm(forms.Form):
     started         = forms.DateField(required=False, label='Started')
     completed       = forms.DateField(required=False, label='Completed')
 
+class StatusAmountForm(forms.Form):
+    budget_amount   = forms.IntegerField(required=False, label='Budget Amount')
+    quoted_amount   = forms.IntegerField(required=False, label='Quoted Amount')
+    actual_amount   = forms.IntegerField(required=False, label='Actual Amount')

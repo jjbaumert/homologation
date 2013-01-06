@@ -1,12 +1,12 @@
 from datetime import datetime, date
-
+import copy
 from django.shortcuts import render
 from django.template import Context, loader
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.db.models import Sum
 
 from budget.models import HomologationItem, HomologationStatus
-from budget.forms import StatusDateForm
+from budget.forms import StatusDateForm, StatusAmountForm
 from budget.tables import HomologationTable
 
 from budget.templatetags.fyq import fyq
@@ -15,6 +15,9 @@ from django_tables2 import RequestConfig
 
 #
 #   find_quarter_start_fyq
+#   
+#   From a fiscal year/quarter return the first day of that 
+#   quarter
 #
 
 def find_quarter_start_fyq(fyq_str, fyy_str):
@@ -39,6 +42,11 @@ def find_quarter_start_fyq(fyq_str, fyy_str):
 
 #
 #   find_quarter_start
+#
+#   From a date find the first day of that quarter
+#   If quarter offset is specified add (possibly a 
+#   negative value) quarter offset to get to the 
+#   real date.
 #
 
 def find_quarter_start(date_value, quarter_offset=0):
@@ -72,6 +80,8 @@ def find_quarter_start(date_value, quarter_offset=0):
 #
 #   homologation_item_list
 #
+#   Display a list of HomologationItems
+#
 
 def homologation_item_list(request, list_filter='', qtr='', yr=''):
 
@@ -80,6 +90,12 @@ def homologation_item_list(request, list_filter='', qtr='', yr=''):
     
     prev_quarter = None
     next_quarter = None
+
+    #
+    # Figure out what subset of the data to display.
+    # Choices are all, current quarter, next quarter, 
+    # previous quarter, or a quarter by name
+    #
 
     if list_filter!='':
         if list_filter=='Q':
@@ -109,11 +125,19 @@ def homologation_item_list(request, list_filter='', qtr='', yr=''):
             requested_start__gte=str(start_date.date()),
             requested_start__lt=str(end_date.date()))
     else:
+        #
+        # If the user doesn't specify a filter, display all of the items >= 2011-10-01
+        #
+        
 		data_set = HomologationStatus.objects.filter(
             active_record=True,
             requested_start__gte='2011-10-01')
 
     table = HomologationTable(data_set)
+
+    #
+    # Grab the totals
+    #
 
     approval_totals = data_set.values('approval_status'). \
         annotate(budget_sum=Sum('budget_amount')). \
@@ -128,6 +152,10 @@ def homologation_item_list(request, list_filter='', qtr='', yr=''):
         exclude(approval_status='cancelled'). \
         annotate(budget_sum=Sum('budget_amount')). \
         order_by('-budget_sum')
+
+    #
+    # Display table using Django Tables2
+    #
 
     RequestConfig(request).configure(table)
 
@@ -157,6 +185,67 @@ def budget_item(request, item_id):
 	
 	return HttpResponse(t.render(c))
 
+
+#
+# update_statusrecord
+#
+# Update the status record and log the changes
+#
+
+def update_statusrecord(status, values):
+    print values
+
+    fields = status._meta.get_all_field_names()
+
+    #
+    # verify that the underlying fields are present
+    #
+    # jjb fixme: make into an assertion?
+    #
+
+    if not (fields.__contains__('id') and
+            fields.__contains__('active_record') and 
+            fields.__contains__('updated') and 
+            fields.__contains__('update_reason')):
+        raise AttributeError
+
+    update_str = ""
+    new_status = copy.deepcopy(status)
+
+    #
+    # Walk through each item_status items and make sure it is
+    # part of HomologationStatus. If it has changed create a log entry
+    #
+
+    for key,value in values.iteritems():
+        if not fields.__contains__(key):
+            raise AttributeError
+
+        if value != getattr(status,key):
+            update_str = update_str + "%s from %s to %s\r\n" % (key,getattr(status,key),value)
+            setattr(new_status,key,value)
+
+
+    if update_str != "":
+        #
+        # Invalidate the id so we write a new record
+        # Update the update text and date and write the new record
+        #
+
+        new_status.id = None
+        new_status.active_record = True
+        new_status.updated = datetime.now()
+        new_status.update_reason = update_str
+        new_status.save()
+
+        #
+        # Make the old record inactive
+        #
+
+        status.active_record = False
+        status.save()
+
+
 #
 #   cert_status_map
 #
@@ -177,68 +266,99 @@ cert_status_map = {
     'update_dates' : [ 'Dates',        'date',          True,       None ],
 }
 
-
 #
 # Common function to update and log status and/or date changes
 #
 
 def update_status(item_status, item_id, action, form=None):
+
+    #
+    # Use the action to determine what status is changing
+    #
+
     (status_string,cert_budget_or_date,_,_) = cert_status_map[action]
 
-    #
-    # Mark the old status as invalid
-    #
-
-    item_status.active_record=False
-    item_status.save()
-
-    #
-    # Create a new active record by marking the id as None
-    #
-
-
-    item_status.id = None
-    item_status.active_record=True
-
-    #
-    # Update the log information
-    #
-    
-    #
-    # jjb fixme: decide what to do with log when we are only
-    # updateing the dates.
-    #
-
-    item_status.updated = datetime.now()
+    update_list = {}
 
     if cert_budget_or_date == 'certification':
-        old_status = item_status.certification_status
-        item_status.certification_status = status_string
+        update_list['certification_status'] = status_string
     elif cert_budget_or_date == 'budget':
-        old_status = item_status.approval_status
-        item_status.approval_status = status_string
-
-    item_status.update_reason = "Moved %s status to: %s from: %s" % \
-        (cert_budget_or_date,status_string,old_status)
+        update_list['approval_status'] = status_string
 
     #
     # if we got something from the date form update the dates
     #
 
     if form != None:
-        item_status.requested_start = form.cleaned_data['requested_start']
-        item_status.approved_for = form.cleaned_data['approved_for']
-        item_status.ready = form.cleaned_data['ready']
-        item_status.started = form.cleaned_data['started']
-        item_status.completed = form.cleaned_data['completed']
-
-    item_status.save()
+        update_list.update(form.cleaned_data)
 
     #
-    # redirect back to the editting the item
+    # update the record and redirect back to the editting the item
     #
 
+    update_statusrecord(item_status, update_list)
     return HttpResponseRedirect("/budget/%s" % item_id)
+
+#
+#   amount_form
+#
+
+def amount_form(request, item_id):
+    
+    #
+    # Load the item and the most recent item_status
+    #   jjb fixme: should this raise a 404 or redirect?
+    #
+
+    try:
+        item = HomologationItem.objects.get(pk=item_id)
+        item_status = item.homologationstatus_set.order_by("-updated")[0]
+    except:
+        raise Http404
+
+    #
+    # If a date form is required generate it. Form is caught by
+    # the POST code path below
+    #
+
+    if request.method == 'POST':
+
+        #
+        # Process the user input
+        #
+
+        form = StatusAmountForm(request.POST)
+
+        if form.is_valid():
+            update_statusrecord(item_status, form.cleaned_data)
+            return HttpResponseRedirect("/budget/%s" % item_id)
+
+        #
+        # Note: we intentionally drop through to the render below the else
+        #
+
+    else:
+            
+        #
+        # Generate the date form
+        #
+
+        initial_values = {
+            'budget_amount' : item_status.budget_amount,
+            'quoted_amount' : item_status.quoted_amount,
+            'actual_amount' : item_status.actual_amount
+        }
+        
+        form = StatusAmountForm(initial=initial_values)
+
+    #
+    # output the date input form
+    #
+        
+    return render(request,'budget/homologation_item_amount.html',
+        { 'form'        : form,
+          'item'        : item,
+          'item_status' : item_status })
 
 
 #

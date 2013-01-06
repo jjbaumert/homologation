@@ -9,6 +9,7 @@ urlpatterns = patterns ('',
 
     url(r'^([0-9]{1,4})/(requested|approved|deferred|rejected)',views.cert_status),
     url(r'^([0-9]{1,4})/(quoting|ready|in_progress|completed|failed|cancelled)',views.cert_status),
+    url(r'^([0-9]{1,4})/edit_amount',views.amount_form),
     
     url(r'^([0-9]{1,4})/history$',views.item_history),
 )
