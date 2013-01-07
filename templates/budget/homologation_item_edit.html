@@ -1,0 +1,130 @@
+{% extends "budget/navbase.html" %}
+
+{% load fyq %}
+{% load datef %}
+
+{% block header %}{{ item.name }}{% endblock %}
+{% block content %}
+
+<form action="/budget/{{ form_url }}" method="post">{% csrf_token %}
+
+<table>
+	<tr height="15"></tr><td colspan="3"><hr></td></tr>
+	<tr></tr><td colspan="3">{{ form.non_field_errors }}</td></tr>
+
+    <tr></tr><td colspan="3">{{ form.name.errors }}</td></tr>
+    <tr><td>Name</td>
+        <td></td>
+        <td>{{ form.name }}</td>
+    </tr>
+    
+    <tr></tr><td colspan="3">{{ form.description.errors }}</td></tr>
+    <tr><td>Description</td>
+        <td></td>
+        <td>{{ form.description }}</td>
+    </tr>
+    
+    <tr></tr><td colspan="3">{{ form.project_code.errors }}</td></tr>
+    <tr><td>Project Code</td>
+        <td></td>
+        <td>{{ form.project_code }}</td>
+    </tr>
+    
+    <tr></tr><td colspan="3">{{ form.cert_type.errors }}</td></tr>
+    <tr><td>Certification Type</td>
+        <td></td>
+        <td>{{ form.cert_type }}</td>
+    </tr>
+
+    <tr></tr><td colspan="3">{{ form.region.errors }}</td></tr>
+    <tr><td>Region</td>
+        <td></td>
+        <td>{{ form.region }}</td>
+    </tr>
+
+    <tr></tr><td colspan="3">{{ form.supplier.errors }}</td></tr>
+    <tr><td>Supplier</td>
+        <td></td>
+        <td>{{ form.supplier }}</td>
+    </tr>
+
+    <tr></tr><td colspan="3">{{ form.module.errors }}</td></tr>
+    <tr><td>Module</td>
+        <td></td>
+        <td>{{ form.module }}</td>
+    </tr>
+
+	<tr height="15"></tr><td colspan="3"><hr></td></tr>
+
+    <tr></tr><td colspan="3">{{ form.approval_status.errors }}</td></tr>
+    <tr><td>Approval</td>
+        <td></td>
+        <td>{{ form.approval_status }}</td>
+    </tr>
+
+    <tr></tr><td colspan="3">{{ form.certification_status.errors }}</td></tr>
+    <tr><td>Certification Status</td>
+        <td></td>
+        <td>{{ form.certification_status }}</td>
+    </tr>
+
+	<tr height="15"></tr><td colspan="3"><hr></td></tr>
+	
+    <tr></tr><td colspan="3">{{ form.requested_start.errors }}</td></tr>
+    <tr><td>Requested Start</td>
+        <td></td>
+        <td>{{ form.requested_start }}</td>
+    </tr>
+    
+    <tr></tr><td colspan="3">{{ form.approved_for.errors }}</td></tr>
+    <tr><td>Approved For</td>
+        <td></td>
+        <td>{{ form.approved_for }}</td>
+    </tr>
+    
+    <tr></tr><td colspan="3">{{ form.ready.errors }}</td></tr>
+    <tr><td>Ready</td>
+        <td></td>
+        <td>{{ form.ready }}</td>
+    </tr>
+    
+    <tr></tr><td colspan="3">{{ form.started.errors }}</td></tr>
+    <tr><td>Started</td>
+        <td></td>
+        <td>{{ form.started }}</td>
+    </tr>
+    
+    <tr></tr><td colspan="3">{{ form.completed.errors }}</td></tr>
+    <tr><td>Completed</td>
+        <td></td>
+        <td>{{ form.completed }}</td>
+    </tr>
+
+	<tr height="15"></tr><td colspan="3"><hr></td></tr>
+
+    <tr></tr><td colspan="3">{{ form.budget_amount.errors }}</td></tr>
+    <tr><td>Budgeted</td>
+        <td></td>
+        <td>{{ form.budget_amount }}</td>
+    </tr>
+    
+    <tr></tr><td colspan="3">{{ form.quoted_amount.errors }}</td></tr>
+    <tr><td>Quoted</td>
+        <td></td>
+        <td>{{ form.quoted_amount }}</td>
+    </tr>
+
+    <tr></tr><td colspan="3">{{ form.actual_amount.errors }}</td></tr>
+    <tr><td>Actual</td>
+        <td></td>
+        <td>{{ form.actual_amount }}</td>
+    </tr>
+
+    <tr><td></td><td></td><td><input type="submit" value="Update"/></td></tr>
+
+	<tr height="15"></tr><td colspan="3"><hr></td></tr>
+</table>
+</form>
+{% endblock %}
+{% block navbar %}
+{% endblock %}
