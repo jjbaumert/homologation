@@ -6,7 +6,7 @@ from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.db.models import Sum
 
 from budget.models import HomologationItem, HomologationStatus
-from budget.forms import StatusDateForm, StatusAmountForm
+from budget.forms import StatusDateForm, StatusAmountForm, EditItemForm
 from budget.tables import HomologationTable
 
 from budget.templatetags.fyq import fyq
@@ -359,6 +359,156 @@ def amount_form(request, item_id):
         { 'form'        : form,
           'item'        : item,
           'item_status' : item_status })
+
+
+def item_addform(request):
+    if request.method == 'POST':
+        form = EditItemForm(request.POST)
+
+        if form.is_valid():
+            item = HomologationItem()
+            item.name = form.cleaned_data['name']
+            item.description = form.cleaned_data['description']
+            item.project_code = form.cleaned_data['project_code']
+            item.cert_type = form.cleaned_data['cert_type']
+            item.region = form.cleaned_data['region']
+            item.supplier = form.cleaned_data['supplier']
+            item.module = form.cleaned_data['module']
+            item.save()
+
+            item_status = HomologationStatus()
+
+            item_status.item = item
+            item_status.approval_status = form.cleaned_data['approval_status'],
+            item_status.certification_status = form.cleaned_data['certification_status'],
+            item_status.budget_amount = form.cleaned_data['budget_amount'],
+            item_status.quoted_amount = form.cleaned_data['quoted_amount'],
+            item_status.actual_amount = form.cleaned_data['actual_amount'],
+            item_status.requested_start = form.cleaned_data['requested_start'],
+            item_status.ready         = form.cleaned_data['ready'],
+            item_status.approved_for  = form.cleaned_data['approved_for'],
+            item_status.started       = form.cleaned_data['started'],
+            item_status.completed     = form.cleaned_data['completed']
+
+            item_status.save()
+            
+            return HttpResponseRedirect("/budget/%s" % item.id)
+    else:
+        form = EditItemForm()
+
+    #
+    # output the date input form
+    #
+
+    return render(request,'budget/homologation_item_edit.html',
+        { 'form'        : form,
+          'form_url'    : 'new'})
+
+
+#
+#   item_form
+#
+
+def item_editform(request, item_id):
+    
+    #
+    # Load the item and the most recent item_status
+    #   jjb fixme: should this raise a 404 or redirect?
+    #
+
+    try:
+        item = HomologationItem.objects.get(pk=item_id)
+        item_status = item.homologationstatus_set.order_by("-updated")[0]
+    except:
+        raise Http404
+
+    #
+    # If a form is required generate it. Form is caught by
+    # the POST code path below
+    #
+
+    if request.method == 'POST':
+
+        #
+        # Process the user input
+        #
+
+        #
+        # jjb fixme: make sure that the dates follow the state
+        #
+
+        form = EditItemForm(request.POST)
+
+        if form.is_valid():
+            item.name = form.cleaned_data['name']
+            item.description = form.cleaned_data['description']
+            item.project_code = form.cleaned_data['project_code']
+            item.cert_type = form.cleaned_data['cert_type']
+            item.region = form.cleaned_data['region']
+            item.supplier = form.cleaned_data['supplier']
+            item.module = form.cleaned_data['module']
+            item.save()
+
+            item_status.homologation_item = item
+
+            updated_values = {
+                'approval_status': form.cleaned_data['approval_status'],
+                'certification_status': form.cleaned_data['certification_status'],
+                'budget_amount' : form.cleaned_data['budget_amount'],
+                'quoted_amount' : form.cleaned_data['quoted_amount'],
+                'actual_amount' : form.cleaned_data['actual_amount'],
+                'requested_start' : form.cleaned_data['requested_start'],
+                'ready'         : form.cleaned_data['ready'],
+                'approved_for'  : form.cleaned_data['approved_for'],
+                'started'       : form.cleaned_data['started'],
+                'completed'     : form.cleaned_data['completed']
+            }
+
+            update_statusrecord(item_status, updated_values)
+
+            return HttpResponseRedirect("/budget/%s" % item_id)
+
+        #
+        # Note: we intentionally drop through to the render below the else
+        #
+
+    else:
+            
+        #
+        # Generate the date form
+        #
+
+        initial_values = {
+            'name'          : item.name,
+            'description'   : item.description,
+            'project_code'  : item.project_code,
+            'cert_type'     : item.cert_type,
+            'region'        : item.region,
+            'module'        : item.module,
+            'supplier'      : item.supplier,
+            'approval_status': item_status.approval_status,
+            'certification_status': item_status.certification_status,
+            'budget_amount' : item_status.budget_amount,
+            'quoted_amount' : item_status.quoted_amount,
+            'actual_amount' : item_status.actual_amount,
+            'requested_start' : item_status.requested_start,
+            'ready'         : item_status.ready,
+            'approved_for'  : item_status.approved_for,
+            'started'       : item_status.started,
+            'completed'     : item_status.completed
+        }
+        
+        form = EditItemForm(initial=initial_values)
+
+    #
+    # output the date input form
+    #
+
+    return render(request,'budget/homologation_item_edit.html',
+        { 'form'        : form,
+          'item'        : item,
+          'item_status' : item_status,
+          'form_url'    : "%d/edit" % item.id})
 
 
 #
