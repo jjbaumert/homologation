@@ -3,7 +3,9 @@
 {% load fyq %}
 {% load datef %}
 
-{% block header %}{{ item.name }}{% endblock %}
+{% block header %}<h1>{{ title }}</h1>{% endblock %}
+{% block bodyattr %}onload="document.getElementById('id_name').select()"{% endblock %}
+
 {% block content %}
 
 <form action="/budget/{{ form_url }}" method="post">{% csrf_token %}
