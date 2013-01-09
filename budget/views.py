@@ -367,6 +367,7 @@ def item_addform(request):
 
         if form.is_valid():
             item = HomologationItem()
+
             item.name = form.cleaned_data['name']
             item.description = form.cleaned_data['description']
             item.project_code = form.cleaned_data['project_code']
@@ -374,21 +375,23 @@ def item_addform(request):
             item.region = form.cleaned_data['region']
             item.supplier = form.cleaned_data['supplier']
             item.module = form.cleaned_data['module']
+
             item.save()
 
-            item_status = HomologationStatus()
-
-            item_status.item = item
-            item_status.approval_status = form.cleaned_data['approval_status'],
-            item_status.certification_status = form.cleaned_data['certification_status'],
-            item_status.budget_amount = form.cleaned_data['budget_amount'],
-            item_status.quoted_amount = form.cleaned_data['quoted_amount'],
-            item_status.actual_amount = form.cleaned_data['actual_amount'],
-            item_status.requested_start = form.cleaned_data['requested_start'],
-            item_status.ready         = form.cleaned_data['ready'],
-            item_status.approved_for  = form.cleaned_data['approved_for'],
-            item_status.started       = form.cleaned_data['started'],
+            item_status = HomologationStatus(homologation_item=item)
+            item_status.approval_status = form.cleaned_data['approval_status']
+            item_status.certification_status = form.cleaned_data['certification_status']
+            item_status.budget_amount = form.cleaned_data['budget_amount']
+            item_status.quoted_amount = form.cleaned_data['quoted_amount']
+            item_status.actual_amount = form.cleaned_data['actual_amount']
+            item_status.requested_start = form.cleaned_data['requested_start']
+            item_status.ready         = form.cleaned_data['ready']
+            item_status.approved_for  = form.cleaned_data['approved_for']
+            item_status.started       = form.cleaned_data['started']
             item_status.completed     = form.cleaned_data['completed']
+
+            item_status.updated = datetime.now()
+            item_status.update_reason = "Initial Creation"
 
             item_status.save()
             
@@ -402,7 +405,8 @@ def item_addform(request):
 
     return render(request,'budget/homologation_item_edit.html',
         { 'form'        : form,
-          'form_url'    : 'new'})
+          'form_url'    : 'new',
+          'title'       : "New Budget Item" })
 
 
 #
@@ -508,7 +512,8 @@ def item_editform(request, item_id):
         { 'form'        : form,
           'item'        : item,
           'item_status' : item_status,
-          'form_url'    : "%d/edit" % item.id})
+          'form_url'    : "%d/edit" % item.id,
+          'title'       : item.name }) 
 
 
 #
