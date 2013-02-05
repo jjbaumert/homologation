@@ -1,0 +1,76 @@
+{% extends "budget/navbase.html" %}
+
+{% load fyq %}
+{% load datef %}
+
+{% block header %}<h1>{{ item.name }}</h1>{% endblock %}
+{% block bodyattr %}onload="document.getElementById('id_part_number').select()"{% endblock %}
+{% block content %}
+
+
+<table width="100%">
+    <tr><td></td><td width="30"></td><td></td><td></td></tr>
+    <tr height="40"><td colspan="4"><hr></td></tr>
+
+    <tr><td colspan="4">{{ form.errors }}</td></tr>
+    <tr><td colspan="4">{{ form.non_field_errors }}</td></tr>
+   
+   <form action="/bom/search" method="post">{% csrf_token %}
+    {% if form.part_number.errors %}
+    <tr>
+        <td></td><td></td><td><strong>{{ form.part_number.errors }}</strong></td></tr>
+    </tr>
+    {% endif %}
+
+    <tr>
+        <td>Part Number</td>
+        <td></td>
+        <td>{{ form.part_number }}</td>
+        <td><input type="submit" value="Search"></td>
+    </tr>
+
+    </form>
+
+    {% if parts_to_select != 0 %}
+
+    <tr height="40"><td colspan="4"><hr></td></tr>
+
+    <form action="/bom/move" method="post">{% csrf_token %}
+
+    {% for value,text in form.possibilities.field.choices %}
+    
+    <tr>
+        <td>
+            <div><label>
+                <input type="checkbox" name="possibilities" value="{{ value }}" 
+                    style="vertical-align:bottom">
+                {{ text }}
+            </label></div>
+        </td>
+        <td></td>
+        <td></td>
+        <td></td>
+    </tr>
+
+    {% endfor %}
+
+    <input type="hidden" name="{{ form.part_number.name }}" value="{{ form.part_number.value }}">
+
+    <tr>
+        <td></td>
+        <td></td>
+        <td><input type="submit" value="Move"></td>
+        <td></td>
+    </tr>
+    
+    </form>
+
+    {% endif %}
+
+    <tr height="40"><td colspan="4"><hr></td></tr>
+    
+</table>
+
+{% endblock %}
+{% block navbar %}
+{% endblock %}
