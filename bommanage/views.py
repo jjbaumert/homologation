@@ -4,6 +4,7 @@ DIRECTORY_55M = '/mnt/55000000'
 DIRECTORY_SEPARATOR = '/'
 
 import os
+import time
 
 from django.shortcuts import render
 from bommanage.forms import BomSearchForm
@@ -65,7 +66,7 @@ def get_fileinfo(directory):
 
 #--------------------------------------------------------------------
 #
-#   move_part(part_number)
+#   ready_move(part_number)
 #
 #--------------------------------------------------------------------
 #
@@ -73,26 +74,80 @@ def get_fileinfo(directory):
 #
 #--------------------------------------------------------------------
 
-def move_part(part_number):
+class DateOutOfRange(Exception):
+    pass
+
+def ready_move(part_number):
     files = get_fileinfo(DIRECTORY_55M+DIRECTORY_SEPARATOR+part_number)
 
-    (_,smallest) = files[0]
-    largest = smallest
+    time_list = []
 
     for file_info in files:
         (file_name, file_mtime) = file_info
+        
+        #
+        # skip PDFs which can be generated after the fact through
+        # a manual process
+        #
 
-        if largest<file_mtime:
-            largest=file_mtime
+        if file_name[-3:]!='pdf':
+            time_list += [ file_mtime ]
 
-        if smallest>file_mtime:
-            smallest=file_mtime
+    #
+    # No files then return an error
+    #
 
-        print file_mtime, file_name
+    if len(time_list)==0:
+        return (False,"<p>Part Number: %s - Nothing to move</p>\n" % part_number)
 
-    print "smallest:", smallest, "largest:", largest, "difference:", (largest-smallest)/60
+    #
+    # calculate the smallest, largest, and median times
+    #
+    
+    time_list.sort()
+    largest = max(time_list)
+    smallest = min(time_list)
+    rough_median = time_list[len(time_list)/2]
 
-    print "move part_number", part_number, "to released."
+    #
+    # if the largest and smallest are more than 4 minutes generate an error
+    #
+
+    if ((largest-smallest)/60) > 4:
+        log_html = """
+            <table>
+                <tr><td>Part Number:</td><td>%s</td><td></td></tr>
+                <tr><td colspan="3"><tr></td></tr>
+        """ % part_number
+
+        #
+        # for each file show the file, file date and an error if >2 min of the median
+        #
+
+        for file_info in files:
+            (file_name, file_mtime) = file_info
+        
+            error = ""
+            if abs(file_mtime-rough_median)/60>2 and file_name[-3:]!='pdf':
+                error = ">2 minutes off of median file date"
+
+            log_html += "<tr><td>%s</td><td>%s</td><td>%s</td></tr>\n" % (
+                file_name,
+                time.strftime("%d %b %Y %H:%M:%S",time.gmtime(file_mtime)),
+                error
+            )
+
+        log_html += "</table>\n"
+        return (False,log_html)
+
+    else:
+
+        #
+        # Success!
+        #
+    
+        return (True,"<p>Part Number: %s - OK</p>\n" % part_number)
+        
 
 
 #--------------------------------------------------------------------
@@ -162,11 +217,39 @@ def move(request):
         form.fields['possibilities'].choices = get_partchoices('55')
 
         if form.is_valid():
+            status = True
+            log = ""
+
+            #
+            # Grab the parts to process. For each part see if the
+            # move would be successful and accumulate the log
+            #
+
             possibilities = form.cleaned_data['possibilities']
 
             for part_number in possibilities:
-                move_part(part_number)
+                (part_status, part_log) = ready_move(part_number)
 
+                status &= part_status
+                log += "<hr>"+part_log
+
+            #
+            # Execute the move
+            #
+
+            if status:
+                for part_number in possibilities:
+                    print "move %s from pending to released" % part_number
+
+            #
+            # Display the result 
+            #
+
+            return render(request,'bommanage/move_result.html', {
+                'status':status,
+                'log':log
+            })
+                
         else:
             
             #
@@ -181,7 +264,3 @@ def move(request):
 
     return render(request,'bommanage/success.html')
 
-        
-
-def success(request):
-    return render(request,'bommanage/success.html')

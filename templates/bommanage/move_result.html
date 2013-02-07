@@ -1,0 +1,23 @@
+{% extends "budget/navbase.html" %}
+
+{% load fyq %}
+{% load datef %}
+
+{% block header %}
+<h1>{{ item.name }}</h1>
+{% endblock %}
+
+{% block content %}
+
+{% if status %}
+    <h2>Move Successful</h2>
+{% else %}
+    <h2>Move Not Executed</h2>
+{% endif %}
+<p><a href="/bom/search">Enter Another</a><p>
+
+{{ log|safe }}
+
+{% endblock %}
+{% block navbar %}
+{% endblock %}
