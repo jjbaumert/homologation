@@ -22,11 +22,10 @@ class HomologationTable(tables.Table):
         model = HomologationStatus
         attrs = {"class": "paleblue"}
 
-        sequence = ('requested_start','approved_for',
-            'name','cert_type','module','approval_status',
-            'certification_status', 'budget_amount')
+        sequence = ('requested_date','requested_amount','ready_date',
+            'approved_date','approved_amount')
 
         exclude = ('id','homologation_item','active_record','updated','update_reason','quoted_amount',
-            'actual_amount','ready','started','completed')
+            'inprogress_date','failed')
 
-        order_by = ('-requested_start', '-budget_amount')
+        order_by = ('-requested_date', '-approved_amount')

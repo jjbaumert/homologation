@@ -122,8 +122,8 @@ def homologation_item_list(request, list_filter='', qtr='', yr=''):
 			
         data_set = HomologationStatus.objects.filter(
             active_record=True,
-            requested_start__gte=str(start_date.date()),
-            requested_start__lt=str(end_date.date()))
+            requested_date__gte=str(start_date.date()),
+            requested_date__lt=str(end_date.date()))
     else:
         #
         # If the user doesn't specify a filter, display all of the items >= 2011-10-01
@@ -131,7 +131,7 @@ def homologation_item_list(request, list_filter='', qtr='', yr=''):
         
 		data_set = HomologationStatus.objects.filter(
             active_record=True,
-            requested_start__gte='2011-10-01')
+            requested_date__gte='2011-10-01')
 
     table = HomologationTable(data_set)
 
@@ -140,18 +140,18 @@ def homologation_item_list(request, list_filter='', qtr='', yr=''):
     #
 
     approval_totals = data_set.values('approval_status'). \
-        annotate(budget_sum=Sum('budget_amount')). \
-        order_by('-budget_sum')
+        annotate(approved_sum=Sum('approved_amount')). \
+        order_by('-approved_sum')
 
     status_totals = data_set.values('certification_status'). \
         exclude(approval_status='cancelled'). \
-        annotate(budget_sum=Sum('budget_amount')). \
-        order_by('-budget_sum')
+        annotate(approved_sum=Sum('approved_amount')). \
+        order_by('-approved_sum')
 
     type_totals = data_set.values('homologation_item__cert_type'). \
         exclude(approval_status='cancelled'). \
-        annotate(budget_sum=Sum('budget_amount')). \
-        order_by('-budget_sum')
+        annotate(approved_sum=Sum('approved_amount')). \
+        order_by('-approved_sum')
 
     #
     # Display table using Django Tables2
@@ -159,7 +159,7 @@ def homologation_item_list(request, list_filter='', qtr='', yr=''):
 
     RequestConfig(request).configure(table)
 
-    return render(request, "budget/homologation_item_list.html", 
+    return render(request, "budget/item_list.html", 
         { 'table': table,
           'title': title,
           'approval_totals': approval_totals,
@@ -359,6 +359,10 @@ def amount_form(request, item_id):
         { 'form'        : form,
           'item'        : item,
           'item_status' : item_status })
+
+def item_testform(request):
+    form = EditItemForm()
+    return render(request,'budget/edit_item.html', {'form':form})
 
 
 def item_addform(request):

@@ -61,14 +61,17 @@ class HomologationItem(models.Model):
     )
     
     name = models.CharField(max_length=50, verbose_name='name')
-    description = models.CharField(max_length=120, verbose_name='description', blank=True, null=True)
     project_code = models.CharField(max_length=30, verbose_name='project code')
+    description = models.TextField(max_length=120, verbose_name='description', blank=True, null=True)
+
     cert_type = models.CharField(max_length=30, verbose_name='certification', choices=CERT_TYPES)
-    cert_prescan = models.CharField(max_length=30, verbose_name='prescan', choices=CERT_PRESCAN_TYPES, blank=True)
+    cert_prescan = models.BooleanField(max_length=30, verbose_name='prescan')
     region = models.CharField(max_length=30, verbose_name='region', choices=CERT_REGION_TYPES)
-    module = models.CharField(max_length=30, verbose_name='module', blank=True)
     supplier = models.CharField(max_length=30, verbose_name='supplier')
-    first_entered = models.CharField(max_length=30)
+    module = models.CharField(max_length=30, verbose_name='module', blank=True)
+    
+    first_entered = models.DateField(blank=True, null=True)
+    business_case = models.TextField(max_length=120, verbose_name='business case', blank=True, null=True)
     
     def __unicode__(self):
         return self.name + "-" + self.description
@@ -100,16 +103,15 @@ class HomologationStatus(models.Model):
 
     approval_status = models.CharField(max_length=30, choices=CERT_APPROVAL_STATUS)
     certification_status = models.CharField(max_length=30, choices=CERT_STATUS)
-    
-    budget_amount = models.IntegerField(blank=True, null=True)
-    quoted_amount = models.IntegerField(blank=True, null=True)
-    actual_amount = models.IntegerField(blank=True, null=True)
 
-    requested_start = models.DateField()
-    ready = models.DateField(blank=True, null=True)    
-    approved_for = models.DateField(blank=True, null=True)    
-    started = models.DateField(blank=True, null=True)
-    completed = models.DateField(blank=True, null=True)
+    requested_date = models.DateField()
+    requested_amount = models.IntegerField()
+    ready_date = models.DateField(blank=True, null=True)
+    quoted_amount = models.IntegerField(blank=True, null=True)
+    approved_date = models.DateField(blank=True, null=True)
+    approved_amount = models.IntegerField(blank=True, null=True)
+    inprogress_date = models.DateField(blank=True, null=True)
+    failed = models.BooleanField()
 
     def __unicode__(self):
         return str(self.homologation_item) 

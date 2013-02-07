@@ -328,18 +328,22 @@ Invoice']
     s.certification_status = item['CT Status']
     
     if item['Budget']!='':
-        s.budget_amount = int(float(item['Budget']))
+        s.approved_amount = int(float(item['Budget']))
     
     if item['Request']!='':
-        s.quoted_amount = int(float(item['Request']))
+        s.approved_amount = int(float(item['Request']))
+        s.requested_amount = int(float(item['Request']))
+    else:
+        s.requested_amount = 0
     
-    if item['Paid']!='':
-        s.actual_amount = int(float(item['Paid']))
-    
-    s.requested_start = item['BQ']
+    s.requested_date = item['BQ']
+
 
     if s.approval_status=='Approved' or s.approval_status=='Complete':
-        s.approved_for = item['BQ']
+        s.approved_date = item['BQ']
+
+    s.failed = False
+
     s.updated = now
     s.update_reason = 'Initial Creation'
     
