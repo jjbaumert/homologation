@@ -5,5 +5,4 @@ from bommanage import views
 urlpatterns = patterns ('',
     url(r'^search$',views.search),
     url(r'^move$',views.move),
-    url(r'^success$',views.success),
 )
