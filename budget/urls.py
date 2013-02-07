@@ -14,4 +14,6 @@ urlpatterns = patterns ('',
     url(r'^([0-9]{1,4})/edit_amount$',views.amount_form),
     
     url(r'^([0-9]{1,4})/history$',views.item_history),
+
+    url(r'^edit_test$',views.item_testform),
 )
