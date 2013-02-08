@@ -1,13 +1,20 @@
 # Create your views here.
 
-DIRECTORY_55M = '/mnt/55000000'
-DIRECTORY_SEPARATOR = '/'
-
 import os
 import time
 
 from django.shortcuts import render
 from bommanage.forms import BomSearchForm
+
+DEVELOPMENT_ENVIRONMENT=os.name
+
+if DEVELOPMENT_ENVIRONMENT=='nt':    
+    DIRECTORY_55M = '\\\\eng\\public\\store\\pending\\55000000'
+    DIRECTORY_SEPARATOR = '\\'
+else:
+    DIRECTORY_55M = '/mnt/55000000'
+    DIRECTORY_SEPARATOR = '/'
+
 
 #--------------------------------------------------------------------
 #
