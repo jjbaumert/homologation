@@ -17,4 +17,5 @@ urlpatterns = patterns('',
     
     url(r'^budget/', include('budget.urls')),
     url(r'^bom/', include('bommanage.urls')),
+    url(r'^psr/', include('psr.urls')),
 )

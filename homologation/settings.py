@@ -7,7 +7,7 @@ import os
 DEVELOPMENT_ENVIRONMENT=os.name
 
 if DEVELOPMENT_ENVIRONMENT=='nt':
-    DEVELOPMENT_DIRECTORY = 'C:/Users/jbaumert/Documents/VirtualEnv/django/homologation'
+    DEVELOPMENT_DIRECTORY = 'd:/Django/homologation'
 else:
     DEVELOPMENT_DIRECTORY = '/home/kender/project/homologation'
 
@@ -27,15 +27,18 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
+print DEVELOPMENT_ENVIRONMENT
+
 if DEVELOPMENT_ENVIRONMENT=="nt":
     DATABASES = {
         'default': {
             'ENGINE': 'sqlserver_ado',       # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-            'NAME': 'Homologation',          # Or path to database file if using sqlite3.
+            'NAME': 'StrategicMetrics',          # Or path to database file if using sqlite3.
             'USER': '',                      # Not used with sqlite3.
             'PASSWORD': '',                  # Not used with sqlite3.
-            'HOST': '.\SQLExpress',          # Set to empty string for localhost. Not used with sqlite3.
+            'HOST': 'MTK-SMS-DB01',          # Set to empty string for localhost. Not used with sqlite3.
             'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
+            'OPTIONS': {'provider': 'SQLOLEDB'}
         }
     }
 else: # linux...
