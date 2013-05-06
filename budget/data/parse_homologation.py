@@ -17,7 +17,7 @@ from budget.models import HomologationItem, HomologationStatus
 re_fyq=re.compile("FY([0-9]{2})-Q([0-9])")
 
 if os.name == 'nt':
-    csv_file = r'C:\Users\jbaumert\Documents\VirtualEnv\django\homologation\budget\data\Homologation.csv'
+    csv_file = os.getcwd()+r'//budget/data/Homologation.csv'
 else:
     csv_file = '/home/kender/project/homologation/budget/data/Homologation.csv'
 
